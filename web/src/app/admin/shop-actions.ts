@@ -5,6 +5,7 @@ import { requireAdmin } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { back, dateInput, str } from "@/lib/form";
 import { HOLD_HOURS, cancelOrder, paymentKeys } from "@/lib/shop";
+import { sendOrderMail } from "@/lib/order-mail";
 import { savePublicFile } from "@/lib/storage";
 
 const ORDERS = "/admin/orders";
@@ -24,6 +25,7 @@ export async function confirmPayment(formData: FormData) {
   const changed = await db.order.updateMany({ where: { id, status: { in: ["PENDING_PAYMENT", "PAYMENT_REVIEW"] } }, data: { status: "PAID", paidAt: new Date(), adminNote: null } });
   refresh();
   if (changed.count === 0) back(ORDERS, "error", "ສະຖານະຄຳສັ່ງຊື້ປ່ຽນໄປແລ້ວ ຢືນຢັນບໍ່ໄດ້");
+  await sendOrderMail(id, "paid");
   back(ORDERS, "saved");
 }
 
@@ -39,14 +41,17 @@ export async function rejectSlip(formData: FormData) {
   });
   refresh();
   if (changed.count === 0) back(ORDERS, "error", "ສະຖານະຄຳສັ່ງຊື້ປ່ຽນໄປແລ້ວ");
+  await sendOrderMail(id, "slipRejected");
   back(ORDERS, "saved");
 }
 
 export async function markFulfilled(formData: FormData) {
   await requireAdmin("SALES");
-  const changed = await db.order.updateMany({ where: { id: str(formData, "id"), status: "PAID" }, data: { status: "FULFILLED", fulfilledAt: new Date() } });
+  const id = str(formData, "id");
+  const changed = await db.order.updateMany({ where: { id, status: "PAID" }, data: { status: "FULFILLED", fulfilledAt: new Date() } });
   refresh();
   if (changed.count === 0) back(ORDERS, "error", "ສົ່ງມອບໄດ້ສະເພາະຄຳສັ່ງຊື້ທີ່ຊຳລະແລ້ວ");
+  await sendOrderMail(id, "fulfilled");
   back(ORDERS, "saved");
 }
 

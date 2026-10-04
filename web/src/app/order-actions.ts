@@ -9,6 +9,7 @@ import { db } from "@/lib/db";
 import { notify } from "@/lib/notify";
 import { isUniqueViolation, nextNumber } from "@/lib/numbering";
 import { formatLAK } from "@/lib/pricing";
+import { sendOrderMail } from "@/lib/order-mail";
 import { HOLD_HOURS, StockError, allocateStock, getPaymentInfo, paymentReady, priceCart, releaseExpiredOrders, type OrderInput, type PricedLine } from "@/lib/shop";
 import { checkFiles, saveFiles } from "@/lib/storage";
 
@@ -37,6 +38,7 @@ const orderSchema = z.object({
   note: text(2000).optional().transform((v) => v || undefined),
   paymentMethod: z.enum(PaymentMethod),
   expectedTotal: z.coerce.number(),
+  lang: z.enum(["lo", "en"]).catch("lo"),
   items: z.string(),
 });
 
@@ -71,7 +73,7 @@ export async function submitOrder(_prev: OrderState, formData: FormData): Promis
         const order = await db.$transaction(async (tx) => {
           const created = await tx.order.create({
             data: {
-              orderNumber, customerId: crm.id, paymentMethod: d.paymentMethod, deliveryAddress: d.deliveryAddress, note: d.note,
+              orderNumber, customerId: crm.id, paymentMethod: d.paymentMethod, lang: d.lang, deliveryAddress: d.deliveryAddress, note: d.note,
               totalAmountLAK: total, expiresAt: new Date(Date.now() + HOLD_HOURS * 3_600_000),
             },
           });
@@ -87,6 +89,7 @@ export async function submitOrder(_prev: OrderState, formData: FormData): Promis
           return created;
         });
         await notify("SALES", [`ຄຳສັ່ງຊື້ໃໝ່ ${orderNumber}`, `${d.organization} · ${d.contactName} · ${d.phone}`, `ຍອດ ${formatLAK(total)} · ${d.paymentMethod === "LAO_QR" ? "LAO QR" : "ໂອນທະນາຄານ"}`, ...lines.map((l) => `• ${l.title}${l.variant ? ` – ${l.variant}` : ""} × ${l.qty}`)].join("\n"));
+        await sendOrderMail(order.id, "received");
         return { ok: true, number: orderNumber, token: shareToken("order", order.id) };
       } catch (error) {
         if (error instanceof StockError) return { ok: false, error: "stock" };

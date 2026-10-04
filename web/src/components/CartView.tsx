@@ -101,6 +101,7 @@ export function CartView({ t, types, lang, paymentReady }: { t: Dictionary["shop
           <h2 className="text-lg font-bold text-brand">{t.details}</h2>
           <input type="hidden" name="items" value={JSON.stringify(items.map(({ productId, variantId, qty }) => ({ productId, variantId, qty })))} />
           <input type="hidden" name="expectedTotal" value={total} />
+          <input type="hidden" name="lang" value={lang} />
           <Honeypot />
           <Field label={t.organization} required><Input name="organization" required maxLength={200} autoComplete="organization" /></Field>
           <Field label={t.customerType} required>
