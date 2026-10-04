@@ -6,20 +6,20 @@
 ## ເລີ່ມໃຊ້ງານ
 
 ```bash
-npm install
+pnpm install
 cp .env.example .env
-npm run db          # Postgres ສຳລັບ dev (port 54329, ຂໍ້ມູນຢູ່ .pgdata/) — ເປີດຄ້າງໄວ້
-npm run db:migrate  # ສ້າງຕາຕະລາງ
-npm run db:seed     # ໃສ່ສິນຄ້າ, ຍີ່ຫໍ້, ຜົນງານ, ຕຳແໜ່ງງານ
-npm run dev         # http://localhost:3100
+pnpm db          # Postgres ສຳລັບ dev (port 54329, ຂໍ້ມູນຢູ່ .pgdata/) — ເປີດຄ້າງໄວ້
+pnpm db:migrate  # ສ້າງຕາຕະລາງ
+pnpm db:seed     # ໃສ່ສິນຄ້າ, ຍີ່ຫໍ້, ຜົນງານ, ຕຳແໜ່ງງານ
+pnpm dev         # http://localhost:3100
 ```
 
 ## ຂຶ້ນລະບົບຈິງ (production)
 
 - ຕັ້ງ `AUTH_SECRET` ເປັນຄ່າສຸ່ມຍາວ: `openssl rand -base64 32` (ໃສ່ໃນ environment ຂອງເຊີເວີ, ບໍ່ commit). ຖ້າບໍ່ຕັ້ງ ເວັບຈະບໍ່ເລີ່ມ admin ໃນ production.
-- ສ້າງບັນຊີ admin ທຳອິດ: `npm run admin:create -- ອີເມວ "ຊື່" ລະຫັດຜ່ານ(10+ຕົວ)`
+- ສ້າງບັນຊີ admin ທຳອິດ: `pnpm admin:create ອີເມວ "ຊື່" ລະຫັດຜ່ານ(10+ຕົວ)`
 - ຕັ້ງ `DATABASE_URL`, `NEXT_PUBLIC_SITE_URL` ແລະ (ຖ້າຕ້ອງການ) `TELEGRAM_*`.
-- ລາຄາ: ສະວິດ "ສະແດງລາຄາໃນເວັບ" ປິດໄວ້ເປັນຄ່າເລີ່ມຕົ້ນ. `npm run prices:sample` ໃສ່ລາຄາຕົວຢ່າງ (ບໍ່ແມ່ນລາຄາຈິງ) ໃຊ້ໃນ dev ເທົ່ານັ້ນ.
+- ລາຄາ: ສະວິດ "ສະແດງລາຄາໃນເວັບ" ປິດໄວ້ເປັນຄ່າເລີ່ມຕົ້ນ. `pnpm prices:sample` ໃສ່ລາຄາຕົວຢ່າງ (ບໍ່ແມ່ນລາຄາຈິງ) ໃຊ້ໃນ dev ເທົ່ານັ້ນ.
 
 ## ໂຄງສ້າງ
 

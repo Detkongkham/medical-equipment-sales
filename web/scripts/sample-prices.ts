@@ -1,6 +1,6 @@
 // Fills EMPTY prices with rough sample values so the price display can be tested.
 // These are NOT real prices. Prices stay hidden on the public site until "ສະແດງລາຄາໃນເວັບ" is switched on in the admin.
-// Usage: npm run prices:sample          (only products/variants with no price yet)
+// Usage: pnpm prices:sample          (only products/variants with no price yet)
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();

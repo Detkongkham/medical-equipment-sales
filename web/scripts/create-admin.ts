@@ -1,10 +1,10 @@
-// Usage: npm run admin:create -- you@example.com "Your Name" 'a-long-password'
+// Usage: pnpm admin:create you@example.com "Your Name" 'a-long-password'
 import { PrismaClient } from "@prisma/client";
 import { hashPassword } from "../src/lib/auth-hash";
 
 const [email, name, password] = process.argv.slice(2);
 if (!email || !name || !password || password.length < 10) {
-  console.error('Usage: npm run admin:create -- <email> "<name>" <password (10+ chars)>');
+  console.error('Usage: pnpm admin:create <email> "<name>" <password (10+ chars)>');
   process.exit(1);
 }
 const prisma = new PrismaClient();
