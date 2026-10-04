@@ -1,0 +1,22 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-brand: #2e3192;
+  --color-brand-dark: #23266f;
+  --color-leaf: #00813c;
+  --color-leaf-dark: #006838;
+  --color-leaf-bright: #009444;
+  --color-accent: #e92227;
+  --color-accent-dark: #c4161b;
+  --font-sans: var(--font-lao), ui-sans-serif, system-ui, sans-serif;
+}
+
+body {
+  background: #ffffff;
+  color: #1f2333;
+}
+
+/* Lao script has tall vowel and tone marks; give lines room. */
+:lang(lo) {
+  line-height: 1.75;
+}
