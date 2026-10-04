@@ -383,6 +383,7 @@ model Order {
   customer        Customer      @relation(fields: [customerId], references: [id])
   status          OrderStatus   @default(PENDING_PAYMENT)
   paymentMethod   PaymentMethod
+  lang            String        @default("lo") // ພາສາຂອງອີເມວທີ່ສົ່ງຫາລູກຄ້າ
   deliveryAddress String
   note            String?
   totalAmountLAK  Decimal       @db.Decimal(14, 2)
@@ -437,4 +438,11 @@ model OrderAllocation {
   lotId       String
   lot         StockLot  @relation(fields: [lotId], references: [id])
   quantity    Int
+}
+
+// ບັນທຶກການແຈ້ງເຕືອນທີ່ສົ່ງແລ້ວ ເພື່ອບໍ່ໃຫ້ສົ່ງຊ້ຳ (ເບິ່ງ src/lib/reminders.ts)
+model NotificationLog {
+  id     String   @id @default(cuid())
+  key    String   @unique
+  sentAt DateTime @default(now())
 }
