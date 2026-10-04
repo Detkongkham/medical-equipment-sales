@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import nodemailer, { type Transporter } from "nodemailer";
 import { sendMail } from "../src/lib/mailer";
 import { db } from "../src/lib/db";
+import { GET } from "../src/app/api/cron/reminders/route";
 import { pmWindow, runReminders } from "../src/lib/reminders";
 import { sendOrderMail } from "../src/lib/order-mail";
 import { cancelOrder } from "../src/lib/shop";
@@ -141,5 +142,28 @@ section("reminders", async () => {
     await db.maintenanceSchedule.deleteMany({ where: { equipmentId: equipment.id } });
     await db.installedEquipment.delete({ where: { id: equipment.id } });
     await db.customer.delete({ where: { id: customer.id } });
+  }
+});
+
+section("cron", async () => {
+  const call = (auth?: string) => GET(new Request("http://x/api/cron/reminders", { headers: auth ? { authorization: auth } : {} }));
+  const previous = process.env.CRON_SECRET;
+  const startedAt = new Date();
+  try {
+    delete process.env.CRON_SECRET;
+    assert.equal((await call("Bearer ")).status, 401);
+    assert.equal((await call("Bearer undefined")).status, 401);
+    process.env.CRON_SECRET = "s3cret";
+    assert.equal((await call()).status, 401);
+    assert.equal((await call("Bearer wrong")).status, 401);
+    const res = await call("Bearer s3cret");
+    assert.equal(res.status, 200);
+    const body = await res.json();
+    assert.equal(body.ok, true);
+    assert.equal(typeof body.sent, "number");
+  } finally {
+    if (previous === undefined) delete process.env.CRON_SECRET;
+    else process.env.CRON_SECRET = previous;
+    await db.notificationLog.deleteMany({ where: { sentAt: { gte: startedAt } } }); // Telegram is unset in dev, so claims were released anyway
   }
 });
