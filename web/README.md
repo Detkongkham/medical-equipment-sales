@@ -34,3 +34,5 @@ pnpm dev         # http://localhost:3100
 - ຫຼັງບ້ານຢູ່ທີ່ `/admin` (ສິນຄ້າ, ລາຄາ, ສິນຄ້າທີ່ໃຊ້ຮ່ວມກັນ, ຄຳຂໍລາຄາ, ແຈ້ງສ້ອມ, ຜູ້ສະໝັກ, ຜົນງານ, ຕຳແໜ່ງງານ). ຢ່າຣັນ `db:seed` ໃສ່ຖານຂໍ້ມູນທີ່ໃຊ້ແລ້ວ — ມັນລຶບສິນຄ້າທັງໝົດ
 - ໄຟລ໌ທີ່ອັບໂຫຼດເກັບໄວ້ໃນ `storage/` ຂອງເຄື່ອງ; production ຕ້ອງປ່ຽນເປັນ Cloudflare R2 / S3 (`src/lib/storage.ts`)
 - ແຈ້ງເຕືອນ Telegram ເຮັດວຽກເມື່ອໃສ່ `TELEGRAM_*` ໃນ `.env`
+- ອີເມວຫາລູກຄ້າເຮັດວຽກເມື່ອໃສ່ `SMTP_*` ແລະ `MAIL_FROM`; ແຈ້ງເຕືອນອັດຕະໂນມັດ (PM, ປະກັນ, Lot) ຕ້ອງຕັ້ງ `CRON_SECRET` ແລ້ວໃຫ້ cron ເອີ້ນ `/api/cron/reminders` (ເບິ່ງ [docs/GO_LIVE_CHECKLIST.md](../docs/GO_LIVE_CHECKLIST.md)).
+- ກວດໄລຍະ 4: `pnpm tsx scripts/verify-phase4.ts` (ຕ້ອງເປີດ dev DB).
