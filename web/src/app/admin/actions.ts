@@ -1,6 +1,6 @@
 "use server";
 
-import { AdminRole, PostType, QuoteStatus, RelationType, StockStatus, TicketStatus } from "@prisma/client";
+import { AdminRole, PostType, QuoteStatus, RelationType, StockStatus } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
@@ -88,7 +88,9 @@ export async function saveProduct(formData: FormData) {
   if (!parsed.success) back(page, "error", "ກະລຸນາໃສ່ຊື່ (ລາວ ແລະ ອັງກິດ) ແລະ ເລືອກໝວດ");
 
   const price = money(str(formData, "priceLAK"));
-  if (price === undefined) back(page, "error", "ລາຄາສິນຄ້າບໍ່ຖືກຕ້ອງ");
+  const medicalPrice = money(str(formData, "medicalPriceLAK"));
+  const dealerPrice = money(str(formData, "dealerPriceLAK"));
+  if (price === undefined || medicalPrice === undefined || dealerPrice === undefined) back(page, "error", "ລາຄາສິນຄ້າບໍ່ຖືກຕ້ອງ");
 
   const variants = all(formData, "variantNameLao").map((nameLao, i) => ({
     id: all(formData, "variantId")[i],
@@ -97,9 +99,11 @@ export async function saveProduct(formData: FormData) {
     nameEng: all(formData, "variantNameEng")[i] || nameLao,
     packSize: all(formData, "variantPack")[i] || null,
     priceLAK: money(all(formData, "variantPrice")[i]),
+    medicalPriceLAK: money(all(formData, "variantMedical")[i] ?? ""),
+    dealerPriceLAK: money(all(formData, "variantDealer")[i] ?? ""),
     stockStatus: all(formData, "variantStock")[i] === "IN_STOCK" ? StockStatus.IN_STOCK : StockStatus.PRE_ORDER,
   })).filter((v) => v.nameLao);
-  if (variants.some((v) => v.priceLAK === undefined)) back(page, "error", "ລາຄາຂອງຕົວເລືອກບໍ່ຖືກຕ້ອງ");
+  if (variants.some((v) => v.priceLAK === undefined || v.medicalPriceLAK === undefined || v.dealerPriceLAK === undefined)) back(page, "error", "ລາຄາຂອງຕົວເລືອກບໍ່ຖືກຕ້ອງ");
 
   const uploaded: string[] = [];
   for (const file of files(formData, "imageFiles")) {
@@ -152,6 +156,8 @@ export async function saveProduct(formData: FormData) {
     certifications: str(formData, "certifications").split(",").map((c) => c.trim()).filter(Boolean),
     specifications,
     priceLAK: price,
+    medicalPriceLAK: medicalPrice,
+    dealerPriceLAK: dealerPrice,
     showPrice: flag(formData, "showPrice"),
     isFeatured: flag(formData, "isFeatured"),
     isPublished: flag(formData, "isPublished"),
@@ -179,7 +185,7 @@ export async function saveProduct(formData: FormData) {
         skipDuplicates: true,
       });
       for (const [i, v] of variants.entries()) {
-        const fields = { nameLao: v.nameLao, nameEng: v.nameEng, packSize: v.packSize, priceLAK: v.priceLAK ?? null, stockStatus: v.stockStatus };
+        const fields = { nameLao: v.nameLao, nameEng: v.nameEng, packSize: v.packSize, priceLAK: v.priceLAK ?? null, medicalPriceLAK: v.medicalPriceLAK ?? null, dealerPriceLAK: v.dealerPriceLAK ?? null, stockStatus: v.stockStatus };
         if (v.id && existing.some((e) => e.id === v.id)) await tx.productVariant.update({ where: { id: v.id }, data: fields });
         else await tx.productVariant.create({ data: { ...fields, productId: product.id, sku: v.sku || `${product.sku}-${Date.now().toString(36)}${i}`.toUpperCase() } });
       }
@@ -266,14 +272,8 @@ export async function setQuoteStatus(formData: FormData) {
   await requireAdmin("SALES");
   const status = z.enum(QuoteStatus).parse(str(formData, "status"));
   await db.quotation.update({ where: { id: str(formData, "id") }, data: { status } });
-  back("/admin/quotes", "saved");
-}
-
-export async function updateTicket(formData: FormData) {
-  await requireAdmin("TECHNICIAN");
-  const status = z.enum(TicketStatus).parse(str(formData, "status"));
-  await db.serviceTicket.update({ where: { id: str(formData, "id") }, data: { status, assignedTech: strOrNull(formData, "assignedTech") } });
-  back("/admin/tickets", "saved");
+  const target = str(formData, "back");
+  back(/^\/admin\/quotes\/[\w-]+$/.test(target) ? target : "/admin/quotes", "saved");
 }
 
 /* ---------- jobs and posts ---------- */

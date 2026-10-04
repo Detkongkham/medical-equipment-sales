@@ -1,0 +1,12 @@
+# One path per line (checked against BASE). Edit to add pages you want verified.
+/lo
+/en
+/lo/products
+/lo/about
+/lo/contact
+/lo/quote
+/lo/services
+/lo/brands
+/lo/projects
+/lo/careers
+/admin/login

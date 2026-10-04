@@ -11,19 +11,24 @@ const daysAgo = (days: number) => new Date(Date.now() - days * 86_400_000);
 export default async function Dashboard({ searchParams }: PageProps<"/admin">) {
   const user = await requireAdmin();
   const sp = await searchParams;
-  const [newQuotes, openTickets, applicants, products, priced, showPrices] = await Promise.all([
+  const now = new Date();
+  const [newQuotes, openTickets, applicants, products, priced, showPrices, maintenanceDue, warrantyExpiring] = await Promise.all([
     db.quotation.count({ where: { status: "PENDING" } }),
     db.serviceTicket.count({ where: { status: { in: ["OPEN", "IN_PROGRESS", "WAITING_PARTS"] } } }),
     db.jobApplicant.count({ where: { createdAt: { gte: daysAgo(30) } } }),
     db.product.count({ where: { isPublished: true } }),
     db.product.count({ where: { OR: [{ priceLAK: { not: null } }, { variants: { some: { priceLAK: { not: null } } } }] } }),
     getShowPrices(),
+    db.maintenanceSchedule.count({ where: { isActive: true, nextDueAt: { lte: now } } }),
+    db.installedEquipment.count({ where: { warrantyUntil: { gte: now, lte: new Date(now.getTime() + 60 * 86_400_000) } } }),
   ]);
   const tiles = [
     { href: "/admin/quotes", label: "ຄຳຂໍລາຄາໃໝ່", value: newQuotes },
     { href: "/admin/tickets", label: "ແຈ້ງສ້ອມທີ່ຍັງເປີດ", value: openTickets },
     { href: "/admin/applicants", label: "ຜູ້ສະໝັກງານ (30 ວັນ)", value: applicants },
     { href: "/admin/products", label: "ສິນຄ້າທີ່ເຜີຍແຜ່", value: products },
+    { href: "/admin/maintenance", label: "ນັດ PM / Calibration ທີ່ເກີນກຳນົດ", value: maintenanceDue },
+    { href: "/admin/equipment?show=expiring", label: "ຮັບປະກັນໝົດໃນ 60 ວັນ", value: warrantyExpiring },
   ];
   return (
     <>

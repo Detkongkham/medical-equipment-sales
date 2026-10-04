@@ -72,3 +72,12 @@ export function recordLogin(email: string, ok: boolean) {
   if (!entry || Date.now() - entry.since > 15 * 60_000) failures.set(email, { count: 1, since: Date.now() });
   else entry.count += 1;
 }
+
+/** Unguessable token for a public link (e.g. a quotation PDF sent to a customer). Tied to the id, so it cannot open other records. */
+export const shareToken = (scope: string, id: string) => sign(`${scope}:${id}`).slice(0, 32);
+
+export function validShareToken(scope: string, id: string, token: string) {
+  const expected = Buffer.from(shareToken(scope, id));
+  const given = Buffer.from(token);
+  return expected.length === given.length && timingSafeEqual(expected, given);
+}

@@ -2,6 +2,7 @@
 
 import { CustomerType } from "@prisma/client";
 import { z } from "zod";
+import { findOrCreateCustomer } from "@/lib/customers";
 import { db } from "@/lib/db";
 import { notify } from "@/lib/notify";
 import { checkFiles, saveFiles } from "@/lib/storage";
@@ -86,16 +87,15 @@ export async function submitQuote(_prev: FormState, formData: FormData): Promise
         (await db.quotation.findFirst({ where: { quoteNumber: { startsWith } }, orderBy: { quoteNumber: "desc" } }))?.quoteNumber,
       );
       try {
+        const crm = await findOrCreateCustomer({
+          organization: customer.organization, type: customer.type, contactName: customer.contactName,
+          phone: customer.phone, whatsapp: customer.whatsapp, email: customer.email, address: customer.address,
+        });
         await db.quotation.create({
           data: {
             quoteNumber,
             note: customer.note,
-            customer: {
-              create: {
-                organization: customer.organization, type: customer.type, contactName: customer.contactName,
-                phone: customer.phone, whatsapp: customer.whatsapp, email: customer.email, address: customer.address,
-              },
-            },
+            customerId: crm.id,
             items: { create: valid.map((v) => ({ productId: v.product.id, variantId: v.variant?.id, quantity: v.qty })) },
           },
         });
@@ -144,11 +144,13 @@ export async function submitTicket(_prev: FormState, formData: FormData): Promis
         (await db.serviceTicket.findFirst({ where: { ticketNumber: { startsWith } }, orderBy: { ticketNumber: "desc" } }))?.ticketNumber,
       );
       try {
+        const crm = await findOrCreateCustomer({ organization: d.organization, contactName: d.contactName, phone: d.phone });
+        // A known serial number links the ticket to the installed-equipment registry (and its warranty).
+        const equipment = d.serialNumber
+          ? await db.installedEquipment.findFirst({ where: { customerId: crm.id, serialNumber: { equals: d.serialNumber, mode: "insensitive" } } })
+          : null;
         await db.serviceTicket.create({
-          data: {
-            ticketNumber, deviceModel: d.deviceModel, serialNumber: d.serialNumber, issueDescription: d.issue, attachmentUrls,
-            customer: { create: { organization: d.organization, contactName: d.contactName, phone: d.phone } },
-          },
+          data: { ticketNumber, deviceModel: d.deviceModel, serialNumber: d.serialNumber, issueDescription: d.issue, attachmentUrls, customerId: crm.id, equipmentId: equipment?.id },
         });
         await notify(
           "SERVICE",

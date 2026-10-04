@@ -30,76 +30,80 @@ model Brand {
   name         String
   logoUrl      String?
   country      String?
-  website      String?   // เว็บทางการของผู้ผลิต
+  website      String? // เว็บทางการของผู้ผลิต
   isHouseBrand Boolean   @default(false) // ຍີ່ຫໍ້ຂອງບໍລິສັດເອງ ເຊັ່ນ XTKBio+, Xupwell
   products     Product[]
 }
 
 enum SalesMode {
-  RFQ_ONLY   // ຂໍລາຄາເທົ່ານັ້ນ (ຄ່າເລີ່ມຕົ້ນ)
+  RFQ_ONLY // ຂໍລາຄາເທົ່ານັ້ນ (ຄ່າເລີ່ມຕົ້ນ)
   DIRECT_BUY // ຊື້ອອນລາຍໄດ້ (ໄລຍະ 3)
 }
 
 enum StockStatus {
-  IN_STOCK  // ພ້ອມສົ່ງ
+  IN_STOCK // ພ້ອມສົ່ງ
   PRE_ORDER // ສັ່ງຈອງ
 }
 
 // ສິນຄ້າ
 model Product {
-  id             String            @id @default(cuid())
-  sku            String            @unique
-  slug           String            @unique
-  modelNumber    String?           // ເຊັ່ນ TK-200, KT-6510
-  titleLao       String
-  titleEng       String
-  shortDescLao   String?
-  shortDescEng   String?
-  fullDescLao    String?           @db.Text
-  fullDescEng    String?           @db.Text
-  categoryId     String
-  category       Category          @relation(fields: [categoryId], references: [id])
-  brandId        String?
-  brand          Brand?            @relation(fields: [brandId], references: [id])
-  salesMode      SalesMode         @default(RFQ_ONLY)
-  stockStatus    StockStatus       @default(PRE_ORDER)
-  images         String[]
-  brochurePdfUrl String?
-  fddRegNumber   String?           // ເລກທະບຽນ ກົມອາຫານ ແລະ ຢາ
-  priceLAK       Decimal?          @db.Decimal(14, 2) // ລາຄາສິນຄ້າທີ່ບໍ່ມີຕົວເລືອກ; ຫວ່າງ = ຂໍລາຄາ
-  showPrice      Boolean           @default(true)     // ເປີດ/ປິດ ລາຄາຂອງສິນຄ້ານີ້ (ຕ້ອງເປີດລາຄາທັງເວັບນຳ)
-  certifications String[]          // ["CE", "FDA", "ISO 13485"]
-  specifications Json?             // [{ "labelLao": "...", "labelEng": "...", "value": "..." }]
-  isFeatured     Boolean           @default(false)
-  isPublished    Boolean           @default(false)
-  variants       ProductVariant[]
-  relatedFrom    ProductRelation[] @relation("RelationFrom")
-  relatedTo      ProductRelation[] @relation("RelationTo")
-  quotationItems QuotationItem[]
-  posts          Post[]
-  createdAt      DateTime          @default(now())
-  updatedAt      DateTime          @updatedAt
+  id              String               @id @default(cuid())
+  sku             String               @unique
+  slug            String               @unique
+  modelNumber     String? // ເຊັ່ນ TK-200, KT-6510
+  titleLao        String
+  titleEng        String
+  shortDescLao    String?
+  shortDescEng    String?
+  fullDescLao     String?              @db.Text
+  fullDescEng     String?              @db.Text
+  categoryId      String
+  category        Category             @relation(fields: [categoryId], references: [id])
+  brandId         String?
+  brand           Brand?               @relation(fields: [brandId], references: [id])
+  salesMode       SalesMode            @default(RFQ_ONLY)
+  stockStatus     StockStatus          @default(PRE_ORDER)
+  images          String[]
+  brochurePdfUrl  String?
+  fddRegNumber    String? // ເລກທະບຽນ ກົມອາຫານ ແລະ ຢາ
+  priceLAK        Decimal?             @db.Decimal(14, 2) // ລາຄາທົ່ວໄປ ຂອງສິນຄ້າທີ່ບໍ່ມີຕົວເລືອກ; ຫວ່າງ = ຂໍລາຄາ
+  medicalPriceLAK Decimal?             @db.Decimal(14, 2) // ລາຄາໂຮງໝໍ / ຄລີນິກ (ໄລຍະ 2), ບໍ່ສະແດງໜ້າເວັບ
+  dealerPriceLAK  Decimal?             @db.Decimal(14, 2) // ລາຄາຕົວແທນ (ໄລຍະ 2), ບໍ່ສະແດງໜ້າເວັບ
+  showPrice       Boolean              @default(true) // ເປີດ/ປິດ ລາຄາຂອງສິນຄ້ານີ້ (ຕ້ອງເປີດລາຄາທັງເວັບນຳ)
+  certifications  String[] // ["CE", "FDA", "ISO 13485"]
+  specifications  Json? // [{ "labelLao": "...", "labelEng": "...", "value": "..." }]
+  isFeatured      Boolean              @default(false)
+  isPublished     Boolean              @default(false)
+  variants        ProductVariant[]
+  relatedFrom     ProductRelation[]    @relation("RelationFrom")
+  relatedTo       ProductRelation[]    @relation("RelationTo")
+  quotationItems  QuotationItem[]
+  equipment       InstalledEquipment[]
+  posts           Post[]
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
 }
 
 // ຕົວເລືອກ ແລະ ຂະໜາດບັນຈຸ (ເຊັ່ນ HBsAg Card 25 test/ກ່ອງ, Strip 50 test/ກ່ອງ)
 model ProductVariant {
-  id             String          @id @default(cuid())
-  productId      String
-  product        Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
-  sku            String          @unique
-  nameLao        String
-  nameEng        String
-  packSize       String?         // "25 test/box", "100/pack", "110mm x 20m"
-  priceLAK       Decimal?        @db.Decimal(14, 2) // ຫວ່າງ = ຂໍລາຄາ
-  priceTHB       Decimal?        @db.Decimal(12, 2)
-  priceUSD       Decimal?        @db.Decimal(10, 2)
-  dealerPriceLAK Decimal?        @db.Decimal(14, 2) // ລາຄາຕົວແທນ (ໄລຍະ 2), ບໍ່ສະແດງໜ້າເວັບ
-  stockStatus    StockStatus     @default(PRE_ORDER)
-  quotationItems QuotationItem[]
+  id              String          @id @default(cuid())
+  productId       String
+  product         Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sku             String          @unique
+  nameLao         String
+  nameEng         String
+  packSize        String? // "25 test/box", "100/pack", "110mm x 20m"
+  priceLAK        Decimal?        @db.Decimal(14, 2) // ຫວ່າງ = ຂໍລາຄາ
+  priceTHB        Decimal?        @db.Decimal(12, 2)
+  priceUSD        Decimal?        @db.Decimal(10, 2)
+  medicalPriceLAK Decimal?        @db.Decimal(14, 2) // ລາຄາໂຮງໝໍ / ຄລີນິກ (ໄລຍະ 2), ບໍ່ສະແດງໜ້າເວັບ
+  dealerPriceLAK  Decimal?        @db.Decimal(14, 2) // ລາຄາຕົວແທນ (ໄລຍະ 2), ບໍ່ສະແດງໜ້າເວັບ
+  stockStatus     StockStatus     @default(PRE_ORDER)
+  quotationItems  QuotationItem[]
 }
 
 enum RelationType {
-  REAGENT    // ນ້ຳຢາທີ່ໃຊ້ກັບເຄື່ອງ
+  REAGENT // ນ້ຳຢາທີ່ໃຊ້ກັບເຄື່ອງ
   CONSUMABLE // ເຈ້ຍພິມ, strip
   ACCESSORY
 }
@@ -119,32 +123,41 @@ model ProductRelation {
 enum CustomerType {
   HOSPITAL
   CLINIC
-  DEALER     // ຕົວແທນ
+  DEALER // ຕົວແທນ
   GOVERNMENT
   INDIVIDUAL
 }
 
 // ລູກຄ້າ / ອົງກອນ
 model Customer {
-  id             String          @id @default(cuid())
+  id             String               @id @default(cuid())
   organization   String
-  type           CustomerType    @default(CLINIC)
+  type           CustomerType         @default(CLINIC)
   contactName    String
   phone          String
   whatsapp       String?
   email          String?
   address        String?
+  notes          String?              @db.Text // ບັນທຶກພາຍໃນຂອງຝ່າຍຂາຍ
   quotations     Quotation[]
   serviceTickets ServiceTicket[]
-  createdAt      DateTime        @default(now())
+  equipment      InstalledEquipment[]
+  createdAt      DateTime             @default(now())
+}
+
+// ລະດັບລາຄາ ທີ່ອີງຕາມປະເພດລູກຄ້າ (ເບິ່ງ src/lib/pricing.ts)
+enum PriceTier {
+  GENERAL // ທົ່ວໄປ
+  MEDICAL // ໂຮງໝໍ / ຄລີນິກ / ລັດ
+  DEALER // ຕົວແທນ
 }
 
 enum QuoteStatus {
-  PENDING   // ຮັບຄຳຂໍແລ້ວ
+  PENDING // ຮັບຄຳຂໍແລ້ວ
   REVIEWING // ຝ່າຍຂາຍກຳລັງກວດ
-  QUOTED    // ສົ່ງໃບສະເໜີລາຄາແລ້ວ
-  APPROVED  // ລູກຄ້າຕົກລົງ
-  CLOSED    // ປິດ (ສຳເລັດ ຫຼື ຍົກເລີກ)
+  QUOTED // ສົ່ງໃບສະເໜີລາຄາແລ້ວ
+  APPROVED // ລູກຄ້າຕົກລົງ
+  CLOSED // ປິດ (ສຳເລັດ ຫຼື ຍົກເລີກ)
 }
 
 // ຄຳຂໍໃບສະເໜີລາຄາ (RFQ)
@@ -156,7 +169,12 @@ model Quotation {
   note           String?
   status         QuoteStatus     @default(PENDING)
   totalAmountLAK Decimal?        @db.Decimal(14, 2)
-  pdfUrl         String?         // ໄລຍະ 2
+  priceTier      PriceTier? // ລະດັບລາຄາທີ່ໃຊ້ຕອນອອກໃບສະເໜີ
+  discountLAK    Decimal?        @db.Decimal(14, 2)
+  validUntil     DateTime?
+  terms          String?         @db.Text // ເງື່ອນໄຂ ທີ່ພິມໃນ PDF
+  sentAt         DateTime?
+  pdfUrl         String? // ສຳຮອງ; ປັດຈຸບັນ PDF ສ້າງສົດໆ ຈາກຂໍ້ມູນໃບສະເໜີ
   items          QuotationItem[]
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
@@ -184,22 +202,88 @@ enum TicketStatus {
 
 // ແຈ້ງສ້ອມ
 model ServiceTicket {
-  id               String       @id @default(cuid())
-  ticketNumber     String       @unique // SR-2026-0001
+  id               String              @id @default(cuid())
+  ticketNumber     String              @unique // SR-2026-0001
   customerId       String
-  customer         Customer     @relation(fields: [customerId], references: [id])
+  customer         Customer            @relation(fields: [customerId], references: [id])
   deviceModel      String
   serialNumber     String?
-  issueDescription String       @db.Text
+  issueDescription String              @db.Text
   attachmentUrls   String[]
-  status           TicketStatus @default(OPEN)
-  assignedTech     String?
-  createdAt        DateTime     @default(now())
-  updatedAt        DateTime     @updatedAt
+  status           TicketStatus        @default(OPEN)
+  assignedToId     String?
+  assignedTo       AdminUser?          @relation("TicketAssignee", fields: [assignedToId], references: [id])
+  equipmentId      String?
+  equipment        InstalledEquipment? @relation(fields: [equipmentId], references: [id])
+  logs             ServiceLog[]
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+}
+
+// ປະຫວັດການສ້ອມ: ບັນທຶກຂອງຊ່າງແຕ່ລະຄັ້ງ
+model ServiceLog {
+  id        String        @id @default(cuid())
+  ticketId  String
+  ticket    ServiceTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  authorId  String?
+  author    AdminUser?    @relation(fields: [authorId], references: [id])
+  status    TicketStatus? // ສະຖານະທີ່ປ່ຽນໄປໃນຄັ້ງນີ້ (ຖ້າມີ)
+  note      String        @db.Text
+  createdAt DateTime      @default(now())
+}
+
+// ທະບຽນເຄື່ອງທີ່ຕິດຕັ້ງ ແລະ ການຮັບປະກັນ
+model InstalledEquipment {
+  id             String                @id @default(cuid())
+  customerId     String
+  customer       Customer              @relation(fields: [customerId], references: [id])
+  productId      String?
+  product        Product?              @relation(fields: [productId], references: [id])
+  deviceModel    String // ຊື່ / ລຸ້ນ ຖ້າບໍ່ຢູ່ໃນ catalog
+  serialNumber   String?
+  location       String? // ຫ້ອງ / ພະແນກ
+  installedAt    DateTime
+  warrantyMonths Int                   @default(12)
+  warrantyUntil  DateTime
+  notes          String?               @db.Text
+  tickets        ServiceTicket[]
+  schedules      MaintenanceSchedule[]
+  createdAt      DateTime              @default(now())
+}
+
+enum MaintenanceType {
+  PM // ບຳລຸງຮັກສາປ້ອງກັນ
+  CALIBRATION // ປັບຄ່າ / Calibration
+}
+
+// ນັດບຳລຸງຮັກສາ ທີ່ເກີດຊ້ຳທຸກ intervalMonths ເດືອນ
+model MaintenanceSchedule {
+  id             String              @id @default(cuid())
+  equipmentId    String
+  equipment      InstalledEquipment  @relation(fields: [equipmentId], references: [id], onDelete: Cascade)
+  type           MaintenanceType
+  intervalMonths Int
+  nextDueAt      DateTime
+  assignedToId   String?
+  assignedTo     AdminUser?          @relation(fields: [assignedToId], references: [id])
+  isActive       Boolean             @default(true)
+  records        MaintenanceRecord[]
+  createdAt      DateTime            @default(now())
+}
+
+model MaintenanceRecord {
+  id         String              @id @default(cuid())
+  scheduleId String
+  schedule   MaintenanceSchedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  doneAt     DateTime
+  doneById   String?
+  doneBy     AdminUser?          @relation(fields: [doneById], references: [id])
+  note       String?             @db.Text
+  createdAt  DateTime            @default(now())
 }
 
 enum PostType {
-  NEWS    // ຂ່າວ, ກິດຈະກຳ
+  NEWS // ຂ່າວ, ກິດຈະກຳ
   PROJECT // ຜົນງານ: ຕິດຕັ້ງ, ສົ່ງມອບ, ສອນການນຳໃຊ້
 }
 
@@ -221,7 +305,7 @@ model Post {
 // ຮັບສະໝັກງານ
 model JobOpening {
   id           String         @id @default(cuid())
-  title        String         // ເຊັ່ນ ເຕັກນິກການແພດ, ເຕັກນິກທົ່ວໄປ
+  title        String // ເຊັ່ນ ເຕັກນິກການແພດ, ເຕັກນິກທົ່ວໄປ
   department   String
   positions    Int            @default(1)
   location     String         @default("Vientiane Capital")
@@ -240,7 +324,7 @@ model JobApplicant {
   fullName     String
   phone        String
   email        String?
-  documentUrls String[]   // CV, ໃບຄຳຮ້ອງ, ໃບປະກາດ, ໃບປະສົບການ
+  documentUrls String[] // CV, ໃບຄຳຮ້ອງ, ໃບປະກາດ, ໃບປະສົບການ
   note         String?
   createdAt    DateTime   @default(now())
 }
@@ -253,13 +337,17 @@ enum AdminRole {
 }
 
 model AdminUser {
-  id           String    @id @default(cuid())
-  email        String    @unique
-  name         String
-  passwordHash String
-  role         AdminRole
-  isActive     Boolean   @default(true)
-  createdAt    DateTime  @default(now())
+  id              String                @id @default(cuid())
+  email           String                @unique
+  name            String
+  passwordHash    String
+  role            AdminRole
+  isActive        Boolean               @default(true)
+  assignedTickets ServiceTicket[]       @relation("TicketAssignee")
+  serviceLogs     ServiceLog[]
+  schedules       MaintenanceSchedule[]
+  maintenanceDone MaintenanceRecord[]
+  createdAt       DateTime              @default(now())
 }
 
 // ການຕັ້ງຄ່າທັງເວັບ ເຊັ່ນ showPrices = "true" | "false"

@@ -56,7 +56,11 @@ export function ProductForm({ product, categories, brands, others }: { product?:
               <Check name="showPrice" label="ສະແດງລາຄາຂອງສິນຄ້ານີ້" hint="ຕ້ອງເປີດ “ສະແດງລາຄາໃນເວັບ” ໃນໜ້າພາບລວມນຳ. ປິດບ່ອນນີ້ = ສິນຄ້ານີ້ສະແດງ “ຂໍລາຄາ”." defaultChecked={product?.showPrice ?? true} />
             </div>
           </div>
-          <p className="mt-2 text-xs text-slate-500">ຖ້າມີຕົວເລືອກ (ດ້ານລຸ່ມ) ໃຫ້ໃສ່ລາຄາຢູ່ແຕ່ລະຕົວເລືອກ.</p>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <Field label="ລາຄາໂຮງໝໍ / ຄລີນິກ (ກີບ)"><Input name="medicalPriceLAK" inputMode="numeric" defaultValue={plain(product?.medicalPriceLAK)} placeholder="ຫວ່າງ = ໃຊ້ລາຄາທົ່ວໄປ" /></Field>
+            <Field label="ລາຄາຕົວແທນ (ກີບ)"><Input name="dealerPriceLAK" inputMode="numeric" defaultValue={plain(product?.dealerPriceLAK)} placeholder="ຫວ່າງ = ໃຊ້ລາຄາໂຮງໝໍ / ທົ່ວໄປ" /></Field>
+          </div>
+          <p className="mt-2 text-xs text-slate-500">ລາຄາໂຮງໝໍ ແລະ ຕົວແທນ ໃຊ້ໃນໃບສະເໜີລາຄາເທົ່ານັ້ນ, ບໍ່ສະແດງໃນເວັບ. ຖ້າມີຕົວເລືອກ (ດ້ານລຸ່ມ) ໃຫ້ໃສ່ລາຄາຢູ່ແຕ່ລະຕົວເລືອກ.</p>
         </Card>
 
         <Card title="ລາຍລະອຽດ">
@@ -92,12 +96,14 @@ export function ProductForm({ product, categories, brands, others }: { product?:
               { name: "variantNameLao", label: "ຊື່ (ລາວ)", width: "1.2fr" },
               { name: "variantNameEng", label: "Name (English)", width: "1.2fr" },
               { name: "variantPack", label: "ຂະໜາດບັນຈຸ", width: "0.9fr" },
-              { name: "variantPrice", label: "ລາຄາ (ກີບ)", width: "0.8fr" },
+              { name: "variantPrice", label: "ລາຄາທົ່ວໄປ (ກີບ)", width: "0.8fr" },
+              { name: "variantMedical", label: "ລາຄາໂຮງໝໍ", width: "0.8fr" },
+              { name: "variantDealer", label: "ລາຄາຕົວແທນ", width: "0.8fr" },
               { name: "variantStock", label: "ສະຖານະ", type: "select", options: stockOptions, width: "0.8fr" },
             ]}
             initial={(product?.variants ?? []).map((v) => ({
               variantId: v.id, variantSku: v.sku, variantNameLao: v.nameLao, variantNameEng: v.nameEng,
-              variantPack: v.packSize ?? "", variantPrice: plain(v.priceLAK), variantStock: v.stockStatus,
+              variantPack: v.packSize ?? "", variantPrice: plain(v.priceLAK), variantMedical: plain(v.medicalPriceLAK), variantDealer: plain(v.dealerPriceLAK), variantStock: v.stockStatus,
             }))}
           />
         </Card>

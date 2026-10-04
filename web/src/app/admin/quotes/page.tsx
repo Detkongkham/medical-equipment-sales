@@ -1,6 +1,9 @@
+import Link from "next/link";
 import { AdminTitle, Notice, Pill, customerType, one, quoteStatus, thDate } from "@/components/admin";
 import { requireAdmin } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { waLink } from "@/lib/phone";
+import { formatLAK } from "@/lib/pricing";
 import { setQuoteStatus } from "../actions";
 
 export const metadata = { title: "ຄຳຂໍລາຄາ" };
@@ -31,7 +34,7 @@ export default async function QuotesAdmin({ searchParams }: PageProps<"/admin/qu
               <p className="mt-2 font-medium text-slate-900">{q.customer.organization} <span className="text-sm font-normal text-slate-500">({customerType[q.customer.type]})</span></p>
               <p className="text-sm text-slate-600">
                 {q.customer.contactName} · <a className="text-brand hover:underline" href={`tel:${q.customer.phone}`}>{q.customer.phone}</a>
-                {" · "}<a className="text-leaf hover:underline" target="_blank" rel="noopener noreferrer" href={`https://wa.me/${phone.replace(/\D/g, "")}`}>WhatsApp</a>
+                {" · "}<a className="text-leaf hover:underline" target="_blank" rel="noopener noreferrer" href={waLink(phone)}>WhatsApp</a>
                 {q.customer.email ? <> · <a className="text-brand hover:underline" href={`mailto:${q.customer.email}`}>{q.customer.email}</a></> : null}
               </p>
               {q.customer.address ? <p className="text-sm text-slate-600">{q.customer.address}</p> : null}
@@ -44,7 +47,12 @@ export default async function QuotesAdmin({ searchParams }: PageProps<"/admin/qu
                 ))}
               </ul>
               {q.note ? <p className="mt-2 whitespace-pre-line rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-700">{q.note}</p> : null}
-              <form action={setQuoteStatus} className="mt-3 flex flex-wrap items-center gap-2">
+              <p className="mt-3 text-sm">
+                <Link href={`/admin/quotes/${q.id}`} className="font-semibold text-brand hover:underline">ອອກ / ແກ້ໄຂໃບສະເໜີລາຄາ →</Link>
+                {q.totalAmountLAK ? <span className="ml-3 text-slate-600">ຍອດ {formatLAK(q.totalAmountLAK)}</span> : null}
+                {q.sentAt ? <span className="ml-3 text-xs text-slate-500">ສົ່ງແລ້ວ {thDate(q.sentAt)}</span> : null}
+              </p>
+              <form action={setQuoteStatus} className="mt-2 flex flex-wrap items-center gap-2">
                 <input type="hidden" name="id" value={q.id} />
                 <select name="status" defaultValue={q.status} aria-label="ສະຖານະ" className="rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-sm">
                   {Object.entries(quoteStatus).map(([value, [text]]) => <option key={value} value={value}>{text}</option>)}

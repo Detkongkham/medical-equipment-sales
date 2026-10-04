@@ -8,7 +8,10 @@ import { buttonClass } from "./ui";
 const nav: { href: string; label: string; roles: AdminRole[] }[] = [
   { href: "/admin", label: "ພາບລວມ", roles: [] },
   { href: "/admin/quotes", label: "ຄຳຂໍລາຄາ", roles: ["SALES"] },
+  { href: "/admin/customers", label: "ລູກຄ້າ (CRM)", roles: ["SALES", "TECHNICIAN"] },
   { href: "/admin/tickets", label: "ແຈ້ງສ້ອມ", roles: ["TECHNICIAN"] },
+  { href: "/admin/equipment", label: "ທະບຽນເຄື່ອງ", roles: ["SALES", "TECHNICIAN"] },
+  { href: "/admin/maintenance", label: "ນັດ PM / Calibration", roles: ["TECHNICIAN"] },
   { href: "/admin/applicants", label: "ຜູ້ສະໝັກງານ", roles: ["HR"] },
   { href: "/admin/products", label: "ສິນຄ້າ", roles: ["SALES"] },
   { href: "/admin/categories", label: "ໝວດໝູ່", roles: ["SALES"] },
