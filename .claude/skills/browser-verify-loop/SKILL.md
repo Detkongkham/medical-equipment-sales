@@ -11,7 +11,7 @@ sends failures back here. It runs two checks: (1) HTTP status/HTML via curl, the
 headless Chrome (console errors, uncaught exceptions, failed requests, Next.js error overlay, mobile
 390px viewport). Lines tagged `[browser]` come from (2). Headless checks can't judge visual
 quality, so **still look at the page yourself** for layout/UX problems.
-Run it manually: `node .claude/browser-check/client-check.mjs` (setup once: `cd .claude/browser-check && npm install`).
+Run it manually: `node .claude/browser-check/client-check.mjs` (setup once: `cd .claude/browser-check && pnpm install`).
 
 ## Loop (max 5 rounds, then stop and report honestly)
 1. **Server up?** `curl -s -o /dev/null -w "%{http_code}" localhost:3100/lo`. If down, start `pnpm dev` in `web/` in the background and read its log.

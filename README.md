@@ -17,6 +17,16 @@
 
 ---
 
+## ຕັ້ງຄ່າເຄື່ອງມື Claude (ເຮັດຄັ້ງດຽວ)
+
+Hook ກວດໜ້າເວັບຝັ່ງບາວເຊີ (`.claude/hooks/verify-pages.sh`) ຕ້ອງຕິດຕັ້ງ dependency ກ່ອນ ຖ້າບໍ່ດັ່ງນັ້ນມັນຈະຂ້າມການກວດບາວເຊີເງຽບໆ:
+
+```bash
+cd .claude/browser-check && pnpm install
+```
+
+ຕ້ອງມີ Google Chrome ຕິດຕັ້ງໃນເຄື່ອງ ແລະ dev server ເປີດຢູ່ (`cd web && pnpm dev` ທີ່ພອດ 3100).
+
 ## ແຫຼ່ງຂໍ້ມູນຕົ້ນທາງ
 
 | ແຫຼ່ງ | URL | ສະຖານະ |
