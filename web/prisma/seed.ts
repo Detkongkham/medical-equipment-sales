@@ -57,15 +57,15 @@ const categories: Cat[] = [
 const brands = [
   { slug: "xtkbio", name: "XTKBio+", isHouseBrand: true },
   { slug: "xupwell", name: "Xupwell", isHouseBrand: true },
-  { slug: "genrui", name: "Genrui" },
-  { slug: "chison", name: "Chison" },
-  { slug: "lumiquick", name: "LumiQuick Diagnostics" },
-  { slug: "vivachek", name: "VivaChek" },
-  { slug: "vcomin", name: "Vcomin" },
-  { slug: "gima", name: "GIMA" },
-  { slug: "sony", name: "Sony" },
-  { slug: "autoclear", name: "Autoclear" },
-  { slug: "ceia", name: "CEIA" },
+  { slug: "genrui", name: "Genrui", country: "China", website: "https://www.genrui-bio.com" },
+  { slug: "chison", name: "Chison", country: "China", website: "https://www.chison.com" },
+  { slug: "lumiquick", name: "LumiQuick Diagnostics", country: "USA" },
+  { slug: "vivachek", name: "VivaChek", country: "China", website: "https://www.vivachek.com" },
+  { slug: "vcomin", name: "Vcomin", country: "China" },
+  { slug: "gima", name: "GIMA", country: "Italy", website: "https://www.gimaitaly.com" },
+  { slug: "sony", name: "Sony", country: "Japan" },
+  { slug: "autoclear", name: "Autoclear", country: "USA", website: "https://www.autoclear.com" },
+  { slug: "ceia", name: "CEIA", country: "Italy", website: "https://www.ceia.net" },
 ];
 
 type Spec = [lo: string, en: string, value: string];

@@ -14,6 +14,13 @@ npm run db:seed     # ໃສ່ສິນຄ້າ, ຍີ່ຫໍ້, ຜົນ
 npm run dev         # http://localhost:3100
 ```
 
+## ຂຶ້ນລະບົບຈິງ (production)
+
+- ຕັ້ງ `AUTH_SECRET` ເປັນຄ່າສຸ່ມຍາວ: `openssl rand -base64 32` (ໃສ່ໃນ environment ຂອງເຊີເວີ, ບໍ່ commit). ຖ້າບໍ່ຕັ້ງ ເວັບຈະບໍ່ເລີ່ມ admin ໃນ production.
+- ສ້າງບັນຊີ admin ທຳອິດ: `npm run admin:create -- ອີເມວ "ຊື່" ລະຫັດຜ່ານ(10+ຕົວ)`
+- ຕັ້ງ `DATABASE_URL`, `NEXT_PUBLIC_SITE_URL` ແລະ (ຖ້າຕ້ອງການ) `TELEGRAM_*`.
+- ລາຄາ: ສະວິດ "ສະແດງລາຄາໃນເວັບ" ປິດໄວ້ເປັນຄ່າເລີ່ມຕົ້ນ. `npm run prices:sample` ໃສ່ລາຄາຕົວຢ່າງ (ບໍ່ແມ່ນລາຄາຈິງ) ໃຊ້ໃນ dev ເທົ່ານັ້ນ.
+
 ## ໂຄງສ້າງ
 
 - `prisma/schema.prisma` — ຖານຂໍ້ມູນ; `prisma/seed.ts` — ຂໍ້ມູນສິນຄ້າຈາກເວັບເກົ່າ ແລະ ເພສ Facebook
@@ -24,6 +31,6 @@ npm run dev         # http://localhost:3100
 
 ## ຍັງບໍ່ໄດ້ເຮັດ
 
-- ໜ້າຫຼັງບ້ານ (admin): ຕອນນີ້ແກ້ສິນຄ້າຜ່ານ `prisma/seed.ts` ແລະ ເບິ່ງຄຳຂໍຜ່ານ `npx prisma studio`
+- ຫຼັງບ້ານຢູ່ທີ່ `/admin` (ສິນຄ້າ, ລາຄາ, ສິນຄ້າທີ່ໃຊ້ຮ່ວມກັນ, ຄຳຂໍລາຄາ, ແຈ້ງສ້ອມ, ຜູ້ສະໝັກ, ຜົນງານ, ຕຳແໜ່ງງານ). ຢ່າຣັນ `db:seed` ໃສ່ຖານຂໍ້ມູນທີ່ໃຊ້ແລ້ວ — ມັນລຶບສິນຄ້າທັງໝົດ
 - ໄຟລ໌ທີ່ອັບໂຫຼດເກັບໄວ້ໃນ `storage/` ຂອງເຄື່ອງ; production ຕ້ອງປ່ຽນເປັນ Cloudflare R2 / S3 (`src/lib/storage.ts`)
 - ແຈ້ງເຕືອນ Telegram ເຮັດວຽກເມື່ອໃສ່ `TELEGRAM_*` ໃນ `.env`

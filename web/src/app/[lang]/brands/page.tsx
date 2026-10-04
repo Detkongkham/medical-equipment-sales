@@ -40,6 +40,7 @@ export default async function BrandsPage({ params }: PageProps<"/[lang]/brands">
                   className="rounded-xl border border-slate-200 p-4 transition-shadow hover:shadow-md"
                 >
                   <p className="text-lg font-bold text-slate-900">{brand.name}</p>
+                  {brand.country ? <p className="text-xs text-slate-500">{brand.country}</p> : null}
                   <p className="text-sm text-slate-500">{brand._count.products} {t.products}</p>
                 </Link>
               ))}

@@ -10,6 +10,8 @@
     "db": "node scripts/dev-db.mjs",
     "db:migrate": "prisma migrate dev",
     "db:seed": "tsx prisma/seed.ts",
+    "admin:create": "tsx scripts/create-admin.ts",
+    "prices:sample": "tsx scripts/sample-prices.ts",
     "postinstall": "prisma generate"
   },
   "dependencies": {

@@ -8,6 +8,7 @@ import { AddToQuoteButton } from "@/components/QuoteButtons";
 import { Container, SectionTitle, StockBadge, buttonClass } from "@/components/ui";
 import { db } from "@/lib/db";
 import { getDictionary, isLocale, pick } from "@/lib/i18n";
+import { formatLAK, getShowPrices, publicPrice } from "@/lib/pricing";
 import { messengerLink, site, whatsappLink } from "@/lib/site";
 
 export const revalidate = 300;
@@ -48,6 +49,9 @@ export default async function ProductPage({ params }: PageProps<"/[lang]/product
   const product = await getProduct(slug);
   if (!product) notFound();
   const t = getDictionary(lang).product;
+  const showPrices = await getShowPrices();
+  const price = publicPrice(product, showPrices);
+  const variantPricesVisible = showPrices && product.showPrice && product.variants.some((v) => v.priceLAK != null);
 
   const title = pick(lang, product.titleLao, product.titleEng);
   const description = pick(lang, product.shortDescLao ?? "", product.shortDescEng);
@@ -66,6 +70,9 @@ export default async function ProductPage({ params }: PageProps<"/[lang]/product
     ...(product.brand ? { brand: { "@type": "Brand", name: product.brand.name } } : {}),
     ...(description ? { description } : {}),
     image: product.images.map((src) => `${site.url}${src}`),
+    ...(price
+      ? { offers: { "@type": "Offer", priceCurrency: "LAK", price: Number(price.amount), availability: inStock ? "https://schema.org/InStock" : "https://schema.org/PreOrder" } }
+      : {}),
   };
 
   return (
@@ -110,7 +117,17 @@ export default async function ProductPage({ params }: PageProps<"/[lang]/product
             </div>
           ) : null}
 
-          <p className="mt-5 text-lg font-bold text-brand">{t.askPrice}</p>
+          {price ? (
+            <div className="mt-5">
+              <p className="text-2xl font-bold text-brand">
+                {price.from ? <span className="mr-1 text-base font-medium text-slate-600">{t.priceFrom}</span> : null}
+                {formatLAK(price.amount)}
+              </p>
+              <p className="mt-1 text-xs text-slate-500">{t.priceNote}</p>
+            </div>
+          ) : (
+            <p className="mt-5 text-lg font-bold text-brand">{t.askPrice}</p>
+          )}
           <div className="mt-3 flex flex-wrap gap-2">
             {product.variants.length === 0 ? (
               <AddToQuoteButton productId={product.id} title={title} labels={quoteLabels} lang={lang} />
@@ -129,6 +146,7 @@ export default async function ProductPage({ params }: PageProps<"/[lang]/product
                     <tr>
                       <th className="px-3 py-2 font-medium">{t.option}</th>
                       <th className="px-3 py-2 font-medium">{t.pack}</th>
+                      {variantPricesVisible ? <th className="px-3 py-2 font-medium">{t.price}</th> : null}
                       <th className="px-3 py-2 font-medium">{t.status}</th>
                       <th className="px-3 py-2" />
                     </tr>
@@ -140,6 +158,9 @@ export default async function ProductPage({ params }: PageProps<"/[lang]/product
                         <tr key={variant.id} className="border-t border-slate-100">
                           <td className="px-3 py-2 font-medium">{name}</td>
                           <td className="whitespace-nowrap px-3 py-2 text-slate-600">{variant.packSize ?? "–"}</td>
+                          {variantPricesVisible ? (
+                            <td className="whitespace-nowrap px-3 py-2 font-semibold text-brand">{variant.priceLAK == null ? t.askPrice : formatLAK(variant.priceLAK)}</td>
+                          ) : null}
                           <td className="px-3 py-2"><StockBadge inStock={variant.stockStatus === "IN_STOCK"} labels={t} /></td>
                           <td className="px-3 py-2 text-right">
                             <AddToQuoteButton productId={product.id} variantId={variant.id} title={title} variant={name} labels={quoteLabels} lang={lang} compact />

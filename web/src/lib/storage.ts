@@ -28,3 +28,20 @@ export async function saveFiles(files: File[], folder: "tickets" | "applications
   }
   return saved;
 }
+
+const IMAGE_TYPES: Record<string, string> = { ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png", ".webp": "image/webp", ".pdf": "application/pdf" };
+export const publicContentType = (name: string) => IMAGE_TYPES[extname(name).toLowerCase()];
+
+/**
+ * Images and brochures uploaded from the admin. Served by app/files/[name]/route.ts.
+ * Production: replace the body with an upload to Cloudflare R2 and return its public URL; callers only store the returned string.
+ */
+export async function savePublicFile(file: File): Promise<string | null> {
+  const ext = extname(file.name).toLowerCase();
+  if (!(ext in IMAGE_TYPES) || file.size > MAX_FILE_BYTES) return null;
+  const dir = join(process.cwd(), "storage", "public");
+  await mkdir(dir, { recursive: true });
+  const name = `${randomUUID()}${ext}`;
+  await writeFile(join(dir, name), Buffer.from(await file.arrayBuffer()));
+  return `/files/${name}`;
+}

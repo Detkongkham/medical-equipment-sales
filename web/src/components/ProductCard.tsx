@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { getDictionary, pick, type Locale } from "@/lib/i18n";
+import { formatLAK, getShowPrices, publicPrice } from "@/lib/pricing";
 import { StockBadge } from "./ui";
 
 export type ProductCardData = {
@@ -10,15 +11,20 @@ export type ProductCardData = {
   images: string[];
   stockStatus: "IN_STOCK" | "PRE_ORDER";
   brand: { name: string } | null;
+  priceLAK: unknown;
+  showPrice: boolean;
+  variants: { priceLAK: unknown }[];
 };
 
 export const productCardSelect = {
   slug: true, titleLao: true, titleEng: true, images: true, stockStatus: true, brand: { select: { name: true } },
+  priceLAK: true, showPrice: true, variants: { select: { priceLAK: true } },
 } as const;
 
-export function ProductCard({ product, lang }: { product: ProductCardData; lang: Locale }) {
+export function ProductCard({ product, lang, showPrices }: { product: ProductCardData; lang: Locale; showPrices: boolean }) {
   const t = getDictionary(lang).product;
   const title = pick(lang, product.titleLao, product.titleEng);
+  const price = publicPrice(product, showPrices);
   return (
     <Link
       href={`/${lang}/product/${product.slug}`}
@@ -34,6 +40,11 @@ export function ProductCard({ product, lang }: { product: ProductCardData; lang:
       <div className="flex flex-1 flex-col gap-2 p-3">
         {product.brand ? <p className="text-xs font-semibold uppercase tracking-wide text-leaf">{product.brand.name}</p> : null}
         <h3 className="text-sm font-semibold text-slate-900 group-hover:text-brand">{title}</h3>
+        {price ? (
+          <p className="text-sm font-bold text-brand">
+            {price.from ? `${t.priceFrom} ` : ""}{formatLAK(price.amount)}
+          </p>
+        ) : null}
         <div className="mt-auto pt-1">
           <StockBadge inStock={product.stockStatus === "IN_STOCK"} labels={t} />
         </div>
@@ -42,11 +53,12 @@ export function ProductCard({ product, lang }: { product: ProductCardData; lang:
   );
 }
 
-export function ProductGrid({ products, lang }: { products: ProductCardData[]; lang: Locale }) {
+export async function ProductGrid({ products, lang }: { products: ProductCardData[]; lang: Locale }) {
+  const showPrices = await getShowPrices();
   return (
     <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
       {products.map((product) => (
-        <ProductCard key={product.slug} product={product} lang={lang} />
+        <ProductCard key={product.slug} product={product} lang={lang} showPrices={showPrices} />
       ))}
     </div>
   );

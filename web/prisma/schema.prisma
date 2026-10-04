@@ -30,6 +30,7 @@ model Brand {
   name         String
   logoUrl      String?
   country      String?
+  website      String?   // เว็บทางการของผู้ผลิต
   isHouseBrand Boolean   @default(false) // ຍີ່ຫໍ້ຂອງບໍລິສັດເອງ ເຊັ່ນ XTKBio+, Xupwell
   products     Product[]
 }
@@ -65,6 +66,8 @@ model Product {
   images         String[]
   brochurePdfUrl String?
   fddRegNumber   String?           // ເລກທະບຽນ ກົມອາຫານ ແລະ ຢາ
+  priceLAK       Decimal?          @db.Decimal(14, 2) // ລາຄາສິນຄ້າທີ່ບໍ່ມີຕົວເລືອກ; ຫວ່າງ = ຂໍລາຄາ
+  showPrice      Boolean           @default(true)     // ເປີດ/ປິດ ລາຄາຂອງສິນຄ້ານີ້ (ຕ້ອງເປີດລາຄາທັງເວັບນຳ)
   certifications String[]          // ["CE", "FDA", "ISO 13485"]
   specifications Json?             // [{ "labelLao": "...", "labelEng": "...", "value": "..." }]
   isFeatured     Boolean           @default(false)
@@ -257,4 +260,10 @@ model AdminUser {
   role         AdminRole
   isActive     Boolean   @default(true)
   createdAt    DateTime  @default(now())
+}
+
+// ການຕັ້ງຄ່າທັງເວັບ ເຊັ່ນ showPrices = "true" | "false"
+model SiteSetting {
+  key   String @id
+  value String
 }

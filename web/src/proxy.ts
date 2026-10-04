@@ -10,6 +10,6 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Skip Next internals and any path with a file extension (images, sitemap.xml, robots.txt).
-  matcher: ["/((?!_next|.*\\..*).*)"],
+  // Skip Next internals, the admin area and any path with a file extension (images, sitemap.xml, robots.txt).
+  matcher: ["/((?!_next|admin|.*\\..*).*)"],
 };
