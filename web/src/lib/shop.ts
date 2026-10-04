@@ -1,5 +1,6 @@
 import type { Prisma } from "@prisma/client";
 import { db } from "./db";
+import { sendOrderMail } from "./order-mail";
 import { getShowPrices } from "./pricing";
 
 /** Unpaid orders keep their stock reserved for this long, then are cancelled and the stock goes back. */
@@ -99,7 +100,7 @@ async function returnStock(tx: Prisma.TransactionClient, orderId: string) {
 
 /** Cancel an order that is not yet delivered and return its stock. Returns false when it was already cancelled or delivered. */
 export async function cancelOrder(orderId: string, reason: string) {
-  return db.$transaction(async (tx) => {
+  const cancelled = await db.$transaction(async (tx) => {
     const changed = await tx.order.updateMany({
       where: { id: orderId, status: { in: ["PENDING_PAYMENT", "PAYMENT_REVIEW", "PAID"] } },
       data: { status: "CANCELLED", adminNote: reason },
@@ -108,6 +109,8 @@ export async function cancelOrder(orderId: string, reason: string) {
     await returnStock(tx, orderId);
     return true;
   });
+  if (cancelled) await sendOrderMail(orderId, "cancelled"); // outside the transaction; also covers automatic expiry
+  return cancelled;
 }
 
 /** Cancel unpaid orders whose hold ran out. Called whenever orders or stock are read, so no scheduler is needed. */

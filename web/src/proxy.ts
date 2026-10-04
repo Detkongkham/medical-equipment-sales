@@ -10,6 +10,6 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Skip Next internals, the admin area, shared quotation PDFs and any path with a file extension (images, sitemap.xml, robots.txt).
-  matcher: ["/((?!_next|admin|quote-pdf|.*\\..*).*)"],
+  // Skip Next internals, the admin area, API routes (cron), shared quotation PDFs and any path with a file extension (images, sitemap.xml, robots.txt).
+  matcher: ["/((?!_next|api|admin|quote-pdf|.*\\..*).*)"],
 };
