@@ -8,6 +8,8 @@ import { buttonClass } from "./ui";
 const nav: { href: string; label: string; roles: AdminRole[] }[] = [
   { href: "/admin", label: "ພາບລວມ", roles: [] },
   { href: "/admin/quotes", label: "ຄຳຂໍລາຄາ", roles: ["SALES"] },
+  { href: "/admin/orders", label: "ຄຳສັ່ງຊື້ ແລະ ຊຳລະເງິນ", roles: ["SALES"] },
+  { href: "/admin/stock", label: "ສະຕັອກ / Lot", roles: ["SALES"] },
   { href: "/admin/customers", label: "ລູກຄ້າ (CRM)", roles: ["SALES", "TECHNICIAN"] },
   { href: "/admin/tickets", label: "ແຈ້ງສ້ອມ", roles: ["TECHNICIAN"] },
   { href: "/admin/equipment", label: "ທະບຽນເຄື່ອງ", roles: ["SALES", "TECHNICIAN"] },
@@ -108,6 +110,10 @@ export const quoteStatus = {
 
 export const ticketStatus = {
   OPEN: ["ຮັບແລ້ວ", "blue"], IN_PROGRESS: ["ກຳລັງສ້ອມ", "amber"], WAITING_PARTS: ["ລໍຊິ້ນສ່ວນ", "indigo"], RESOLVED: ["ສຳເລັດ", "green"], CLOSED: ["ປິດ", "gray"],
+} as const;
+
+export const orderStatus = {
+  PENDING_PAYMENT: ["ລໍຖ້າຊຳລະ", "amber"], PAYMENT_REVIEW: ["ລໍກວດສະລິບ", "blue"], PAID: ["ຊຳລະແລ້ວ", "indigo"], FULFILLED: ["ສົ່ງມອບແລ້ວ", "green"], CANCELLED: ["ຍົກເລີກ", "gray"],
 } as const;
 
 export const customerType = { HOSPITAL: "ໂຮງໝໍ", CLINIC: "ຄລີນິກ", DEALER: "ຕົວແທນ", GOVERNMENT: "ລັດ", INDIVIDUAL: "ບຸກຄົນ" } as const;

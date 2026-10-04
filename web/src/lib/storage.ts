@@ -17,7 +17,7 @@ export function checkFiles(files: File[]): "ok" | "too-many" | "too-big" | "bad-
 
 // Development storage: files go to ./storage (not publicly served).
 // Production needs object storage (Cloudflare R2 / S3) behind this same function.
-export async function saveFiles(files: File[], folder: "tickets" | "applications"): Promise<string[]> {
+export async function saveFiles(files: File[], folder: "tickets" | "applications" | "orders"): Promise<string[]> {
   const dir = join(process.cwd(), "storage", folder);
   await mkdir(dir, { recursive: true });
   const saved: string[] = [];

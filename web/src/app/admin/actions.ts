@@ -1,11 +1,12 @@
 "use server";
 
-import { AdminRole, PostType, QuoteStatus, RelationType, StockStatus } from "@prisma/client";
+import { AdminRole, PostType, QuoteStatus, RelationType, SalesMode, StockStatus } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { endSession, hashPassword, loginAllowed, recordLogin, requireAdmin, startSession, verifyPassword } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { RFQ_ONLY_CATEGORY } from "@/lib/shop";
 import { savePublicFile } from "@/lib/storage";
 
 const str = (fd: FormData, key: string) => String(fd.get(key) ?? "").trim();
@@ -72,6 +73,7 @@ const productSchema = z.object({
   titleEng: z.string().min(1),
   categoryId: z.string().min(1),
   stockStatus: z.enum(StockStatus),
+  salesMode: z.enum(SalesMode),
 });
 
 export async function saveProduct(formData: FormData) {
@@ -84,8 +86,13 @@ export async function saveProduct(formData: FormData) {
     titleEng: str(formData, "titleEng"),
     categoryId: str(formData, "categoryId"),
     stockStatus: str(formData, "stockStatus"),
+    salesMode: str(formData, "salesMode") || SalesMode.RFQ_ONLY,
   });
   if (!parsed.success) back(page, "error", "ກະລຸນາໃສ່ຊື່ (ລາວ ແລະ ອັງກິດ) ແລະ ເລືອກໝວດ");
+  if (parsed.data.salesMode === "DIRECT_BUY") {
+    const category = await db.category.findUnique({ where: { id: parsed.data.categoryId }, include: { parent: true } });
+    if (category?.slug === RFQ_ONLY_CATEGORY || category?.parent?.slug === RFQ_ONLY_CATEGORY) back(page, "error", "ໝວດຢາຂາຍອອນລາຍບໍ່ໄດ້ (ຂໍລາຄາເທົ່ານັ້ນ)");
+  }
 
   const price = money(str(formData, "priceLAK"));
   const medicalPrice = money(str(formData, "medicalPriceLAK"));
@@ -150,6 +157,7 @@ export async function saveProduct(formData: FormData) {
     categoryId: parsed.data.categoryId,
     brandId: strOrNull(formData, "brandId"),
     stockStatus: parsed.data.stockStatus,
+    salesMode: parsed.data.salesMode,
     images: [...all(formData, "image").filter(Boolean), ...uploaded],
     brochurePdfUrl,
     fddRegNumber: strOrNull(formData, "fddRegNumber"),

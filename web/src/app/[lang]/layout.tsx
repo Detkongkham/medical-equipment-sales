@@ -3,6 +3,7 @@ import { Noto_Sans_Lao } from "next/font/google";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { CartNavLink } from "@/components/CartButtons";
 import { LangSwitch } from "@/components/LangSwitch";
 import { QuoteNavLink } from "@/components/QuoteButtons";
 import { Container } from "@/components/ui";
@@ -71,6 +72,7 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
             </Link>
             <div className="flex items-center gap-2">
               <LangSwitch lang={lang} />
+              <CartNavLink href={`/${lang}/cart`} label={t.shop.cart} />
               <QuoteNavLink href={`/${lang}/quote`} label={t.nav.quote} />
             </div>
           </Container>

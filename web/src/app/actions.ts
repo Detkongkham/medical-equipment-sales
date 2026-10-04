@@ -5,6 +5,7 @@ import { z } from "zod";
 import { findOrCreateCustomer } from "@/lib/customers";
 import { db } from "@/lib/db";
 import { notify } from "@/lib/notify";
+import { isUniqueViolation, nextNumber } from "@/lib/numbering";
 import { checkFiles, saveFiles } from "@/lib/storage";
 
 export type FormState = { ok: boolean; number?: string; error?: "required" | "emptyQuote" | "files" | "failed" };
@@ -26,17 +27,6 @@ function uploads(formData: FormData) {
 /** Bots fill the hidden "website" field; humans never see it. */
 function isSpam(formData: FormData) {
   return Boolean(formData.get("website"));
-}
-
-/** Next sequential number for the year, e.g. Q-2026-0001, based on the highest one issued so far. */
-async function nextNumber(prefix: "Q" | "SR", latest: (startsWith: string) => Promise<string | undefined>) {
-  const base = `${prefix}-${new Date().getFullYear()}-`;
-  const last = await latest(base);
-  return `${base}${String((last ? Number(last.slice(base.length)) : 0) + 1).padStart(4, "0")}`;
-}
-
-function isUniqueViolation(error: unknown) {
-  return typeof error === "object" && error !== null && "code" in error && error.code === "P2002";
 }
 
 const quoteSchema = z.object({

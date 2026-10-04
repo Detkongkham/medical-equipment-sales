@@ -45,6 +45,7 @@ export default async function ProductsAdmin({ searchParams }: PageProps<"/admin/
                   <td className="space-x-1 px-3 py-2">
                     <Pill tone={p.isPublished ? "green" : "gray"}>{p.isPublished ? "ເຜີຍແຜ່" : "ຮ່າງ"}</Pill>
                     {p.stockStatus === "IN_STOCK" ? <Pill tone="blue">ພ້ອມສົ່ງ</Pill> : null}
+                    {p.salesMode === "DIRECT_BUY" ? <Pill tone="indigo">ຊື້ອອນລາຍ</Pill> : null}
                   </td>
                 </tr>
               );

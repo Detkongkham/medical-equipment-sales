@@ -7,7 +7,7 @@ import { publicContentType } from "@/lib/storage";
 export async function GET(request: Request) {
   if (!(await getAdmin())) return new Response("Unauthorized", { status: 401 });
   const ref = new URL(request.url).searchParams.get("f") ?? "";
-  const match = /^local:(tickets|applications)\/([\w-]+\.\w+)$/.exec(ref);
+  const match = /^local:(tickets|applications|orders)\/([\w-]+\.\w+)$/.exec(ref);
   const type = match && publicContentType(match[2]);
   if (!match || !type) return new Response("Not found", { status: 404 });
   try {

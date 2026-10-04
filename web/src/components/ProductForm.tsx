@@ -63,6 +63,18 @@ export function ProductForm({ product, categories, brands, others }: { product?:
           <p className="mt-2 text-xs text-slate-500">ລາຄາໂຮງໝໍ ແລະ ຕົວແທນ ໃຊ້ໃນໃບສະເໜີລາຄາເທົ່ານັ້ນ, ບໍ່ສະແດງໃນເວັບ. ຖ້າມີຕົວເລືອກ (ດ້ານລຸ່ມ) ໃຫ້ໃສ່ລາຄາຢູ່ແຕ່ລະຕົວເລືອກ.</p>
         </Card>
 
+        <Card title="ການຂາຍອອນລາຍ (ເຄື່ອງໃຊ້ສິ້ນເປືອງ)">
+          <Field label="ວິທີຂາຍ">
+            <Select name="salesMode" defaultValue={product?.salesMode ?? "RFQ_ONLY"}>
+              <option value="RFQ_ONLY">ຂໍໃບສະເໜີລາຄາເທົ່ານັ້ນ</option>
+              <option value="DIRECT_BUY">ຊື້ອອນລາຍໄດ້ (ເກັບສະຕັອກຕາມ Lot)</option>
+            </Select>
+          </Field>
+          <p className="mt-2 text-xs text-slate-500">
+            ຊື້ອອນລາຍໄດ້ ຕໍ່ເມື່ອ: ເປີດ “ສະແດງລາຄາໃນເວັບ”, ສິນຄ້ານີ້ (ຫຼື ຕົວເລືອກ) ມີລາຄາທົ່ວໄປ, ມີສະຕັອກໃນໜ້າ “ສະຕັອກ / Lot”, ແລະ ຕັ້ງບັນຊີຮັບເງິນແລ້ວ. ໝວດຢາ ຕັ້ງບໍ່ໄດ້.
+          </p>
+        </Card>
+
         <Card title="ລາຍລະອຽດ">
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="ຄຳອະທິບາຍສັ້ນ (ລາວ)"><Textarea name="shortDescLao" rows={3} defaultValue={product?.shortDescLao ?? ""} /></Field>

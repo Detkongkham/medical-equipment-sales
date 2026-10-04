@@ -4,11 +4,13 @@ import { notFound } from "next/navigation";
 import { cache } from "react";
 import { Gallery } from "@/components/Gallery";
 import { ProductGrid, productCardSelect } from "@/components/ProductCard";
+import { AddToCartButton } from "@/components/CartButtons";
 import { AddToQuoteButton } from "@/components/QuoteButtons";
 import { Container, SectionTitle, StockBadge, buttonClass } from "@/components/ui";
 import { db } from "@/lib/db";
 import { getDictionary, isLocale, pick } from "@/lib/i18n";
 import { formatLAK, getShowPrices, publicPrice } from "@/lib/pricing";
+import { getPaymentInfo, paymentReady, priceCart, releaseExpiredOrders } from "@/lib/shop";
 import { messengerLink, site, whatsappLink } from "@/lib/site";
 
 export const revalidate = 300;
@@ -59,6 +61,13 @@ export default async function ProductPage({ params }: PageProps<"/[lang]/product
   const inStock = product.stockStatus === "IN_STOCK" || product.variants.some((v) => v.stockStatus === "IN_STOCK");
   const inquiry = `${t.inquiry}: ${title} (${product.sku})`;
   const quoteLabels = { add: t.addToQuote, added: t.added, view: t.viewQuote };
+  // Online purchase: only consumables set to "buy online", with a price, stock in unexpired lots and a payment account configured.
+  const canBuy = product.salesMode === "DIRECT_BUY" && paymentReady(await getPaymentInfo());
+  if (canBuy) await releaseExpiredOrders();
+  const buyLines = canBuy ? await priceCart(product.variants.length > 0 ? product.variants.map((v) => ({ productId: product.id, variantId: v.id, qty: 1 })) : [{ productId: product.id, qty: 1 }]) : [];
+  const buyable = (variantId?: string) => buyLines.find((l) => l.variantId === variantId);
+  const shop = getDictionary(lang).shop;
+  const cartLabels = { add: shop.addToCart, added: shop.addedToCart, view: shop.viewCart };
   const crumbs = [product.category.parent, product.category].filter((c) => c !== null);
 
   const jsonLd = {
@@ -129,6 +138,9 @@ export default async function ProductPage({ params }: PageProps<"/[lang]/product
             <p className="mt-5 text-lg font-bold text-brand">{t.askPrice}</p>
           )}
           <div className="mt-3 flex flex-wrap gap-2">
+            {product.variants.length === 0 && buyable() ? (
+              buyable()?.ok ? <AddToCartButton productId={product.id} labels={cartLabels} lang={lang} /> : <span className="self-center rounded-full bg-slate-100 px-3 py-1.5 text-sm font-medium text-slate-600">{shop.outOfStock}</span>
+            ) : null}
             {product.variants.length === 0 ? (
               <AddToQuoteButton productId={product.id} title={title} labels={quoteLabels} lang={lang} />
             ) : null}
@@ -162,7 +174,10 @@ export default async function ProductPage({ params }: PageProps<"/[lang]/product
                             <td className="whitespace-nowrap px-3 py-2 font-semibold text-brand">{variant.priceLAK == null ? t.askPrice : formatLAK(variant.priceLAK)}</td>
                           ) : null}
                           <td className="px-3 py-2"><StockBadge inStock={variant.stockStatus === "IN_STOCK"} labels={t} /></td>
-                          <td className="px-3 py-2 text-right">
+                          <td className="space-y-1 px-3 py-2 text-right">
+                            {buyable(variant.id) ? (
+                              buyable(variant.id)?.ok ? <AddToCartButton productId={product.id} variantId={variant.id} labels={cartLabels} lang={lang} compact /> : <span className="block text-xs text-slate-500">{shop.outOfStock}</span>
+                            ) : null}
                             <AddToQuoteButton productId={product.id} variantId={variant.id} title={title} variant={name} labels={quoteLabels} lang={lang} compact />
                           </td>
                         </tr>
